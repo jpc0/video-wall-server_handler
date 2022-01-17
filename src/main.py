@@ -39,6 +39,10 @@ def worker(worker_url: str, pub_url: str, context: zmq.Context = None):
                 loop_running = False
                 z_pub_socket.send_json(message)
 
+            if message["command"] == "adjust_color":
+                loop_running = False
+                z_pub_socket.send_json(message)
+
             # Begin the looping images
 
             if message["command"] == "display_image_loop":
@@ -111,6 +115,15 @@ def main():
         if z_rep_socket in socks:
             message = z_rep_socket.recv_json()
             if message["command"] == "display_image":
+                z_proc_socket.send_json(message)
+                data = {
+                    "version": "0.1.0",
+                    "command": "info",
+                    "message": "Message sent",
+                }
+                z_rep_socket.send_json(data)
+
+            if message["command"] == "adjust_color":
                 z_proc_socket.send_json(message)
                 data = {
                     "version": "0.1.0",
